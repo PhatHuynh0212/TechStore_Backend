@@ -116,21 +116,28 @@ const deleteProduct = (id) => {
     });
 };
 
-const getAllProduct = (id) => {
+const getAllProduct = (limit = 8, page = 0) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const allProduct = await Product.find();
+            const totalProduct = await Product.countDocuments();
+            const allProduct = await Product.find()
+                .limit(limit)
+                .skip(limit * page);
 
             resolve({
                 status: "OK",
                 message: "GET ALL PRODUCT SUCCESS",
                 data: allProduct,
+                totalProduct: totalProduct,
+                pageCurrent: page + 1,
+                totalPage: Math.ceil(totalProduct / limit),
             });
         } catch (e) {
             reject(e);
         }
     });
 };
+
 module.exports = {
     createProduct,
     updateProduct,

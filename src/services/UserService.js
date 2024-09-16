@@ -144,15 +144,21 @@ const deleteUser = (id) => {
     });
 };
 
-const getAllUser = (id) => {
+const getAllUser = (limit = 8, page = 0) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const allUser = await User.find();
+            const totalUser = await User.countDocuments();
+            const allUser = await User.find()
+                .limit(limit)
+                .skip(limit * page);
 
             resolve({
                 status: "OK",
                 message: "GET ALL USER SUCCESS",
                 data: allUser,
+                totalUser: totalUser,
+                pageCurrent: page + 1,
+                totalPage: Math.ceil(totalUser / limit),
             });
         } catch (e) {
             reject(e);

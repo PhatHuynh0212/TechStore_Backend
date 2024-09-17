@@ -144,7 +144,7 @@ const deleteUser = (id) => {
     });
 };
 
-const getAllUser = (limit = 8, page = 0) => {
+const getAllUser = (limit, page) => {
     return new Promise(async (resolve, reject) => {
         try {
             const totalUser = await User.countDocuments();

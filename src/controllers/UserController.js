@@ -115,8 +115,8 @@ const getAllUser = async (req, res) => {
         const { limit, page } = req.query;
         // Get request body into service
         const response = await UserService.getAllUser(
-            Number(limit),
-            Number(page)
+            Number(limit) || 8,
+            Number(page) || 0
         );
         return res.status(200).json(response);
     } catch (e) {

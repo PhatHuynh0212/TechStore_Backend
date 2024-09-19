@@ -11,7 +11,7 @@ const createUser = (newUser) => {
             });
             if (checkUser !== null) {
                 resolve({
-                    status: "OK",
+                    status: "ERR",
                     message: "The email is already exist",
                 });
             }
@@ -40,7 +40,7 @@ const createUser = (newUser) => {
 
 const loginUser = (userLogin) => {
     return new Promise(async (resolve, reject) => {
-        const { name, email, password, confirmPassword, phone } = userLogin;
+        const { email, password } = userLogin;
         try {
             const checkUser = await User.findOne({
                 email: email,
@@ -48,7 +48,7 @@ const loginUser = (userLogin) => {
 
             if (checkUser === null) {
                 resolve({
-                    status: "OK",
+                    status: "ERR",
                     message: "The user is not defined",
                 });
             }
@@ -60,7 +60,7 @@ const loginUser = (userLogin) => {
 
             if (!comparePassword) {
                 resolve({
-                    status: "OK",
+                    status: "ERR",
                     message: "The password or username is incorrect",
                 });
             }

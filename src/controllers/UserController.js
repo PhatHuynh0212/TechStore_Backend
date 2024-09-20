@@ -59,8 +59,10 @@ const loginUser = async (req, res) => {
         res.cookie("refresh_token", refresh_token, {
             // Chỉ lấy đc qua http
             HttpOnly: true,
-            // Bảo mật ở client
-            Secure: true,
+            // Khi deploy sẽ đổi true
+            Secure: false,
+            // Chỉ gửi cookie khi điều hướng trong cùng site
+            SameSite: "Strict",
         });
         return res.status(200).json(newResponse);
     } catch (e) {

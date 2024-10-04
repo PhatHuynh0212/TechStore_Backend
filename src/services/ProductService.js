@@ -143,6 +143,7 @@ const deleteManyProduct = (ids) => {
 const getAllProduct = (limit, page, sort, filter) => {
     return new Promise(async (resolve, reject) => {
         try {
+            let allProduct = [];
             const totalProduct = await Product.countDocuments();
             if (filter) {
                 const label = filter[0];
@@ -179,9 +180,14 @@ const getAllProduct = (limit, page, sort, filter) => {
                 });
             }
 
-            const allProduct = await Product.find()
-                .limit(limit)
-                .skip(limit * page);
+            // Nếu limit null => lấy hết
+            if (!limit) {
+                allProduct = await Product.find();
+            } else {
+                allProduct = await Product.find()
+                    .limit(limit)
+                    .skip(limit * page);
+            }
 
             resolve({
                 status: "OK",

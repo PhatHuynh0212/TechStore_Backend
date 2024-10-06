@@ -15,74 +15,67 @@ const createOrder = (newOrder) => {
             city,
             user,
         } = newOrder;
+
         try {
-            const promises = orderItems.map(async (order) => {
+            const outOfStockItems = [];
+
+            const updateProductPromises = orderItems.map(async (order) => {
                 const productData = await Product.findOneAndUpdate(
                     {
                         _id: order.product,
-                        // Check số lượng đủ để bán
-                        countInStock: { $gte: order.amount },
+                        countInStock: { $gte: order.amount }, // Kiểm tra đủ hàng
                     },
                     {
                         $inc: {
-                            // Giảm số lượng tồn kho
-                            countInStock: -order.amount,
-                            // Tăng lượt bán
-                            selled: +order.amount,
+                            countInStock: -order.amount, // Giảm số lượng tồn kho
+                            selled: +order.amount, // Tăng số lượng đã bán
                         },
                     },
                     {
                         new: true,
                     }
                 );
-                if (productData) {
-                    const newOrder = await Order.create({
-                        orderItems,
-                        shippingAddress: {
-                            fullName,
-                            phone,
-                            address,
-                            city,
-                        },
-                        paymentMethod,
-                        itemsPrice,
-                        shippingPrice,
-                        totalPrice,
-                        user: user,
-                    });
-                    if (newOrder) {
-                        return {
-                            status: "OK",
-                            message: "SUCCESS",
-                            // data: newOrder,
-                        };
-                    }
-                } else {
-                    return {
-                        status: "OK",
-                        message: "ERROR",
-                        id: order.product,
-                    };
+                if (!productData) {
+                    outOfStockItems.push(order.product);
                 }
             });
-            const results = await Promise.all(promises);
-            const newData = results.filter((item) => {
-                item.data;
-            });
-            if (newData.length) {
-                resolve({
+
+            await Promise.all(updateProductPromises);
+
+            if (outOfStockItems.length > 0) {
+                return resolve({
                     status: "ERR",
-                    message: `Product with id-${newData.join(
+                    message: `Product với id-${outOfStockItems.join(
                         ","
-                    )} is out of stock!`,
+                    )} đã hết hàng!`,
                 });
             }
-            resolve({
-                status: "OK",
-                message: "Success",
+
+            const newOrderCreated = await Order.create({
+                orderItems,
+                shippingAddress: {
+                    fullName,
+                    phone,
+                    address,
+                    city,
+                },
+                paymentMethod,
+                itemsPrice,
+                shippingPrice,
+                totalPrice,
+                user: user,
             });
+
+            // Nếu tạo thành công, trả về kết quả thành công
+            if (newOrderCreated) {
+                return resolve({
+                    status: "OK",
+                    message: "SUCCESS",
+                    // data: newOrderCreated,
+                });
+            }
         } catch (e) {
-            reject(e);
+            return reject(e);
         }
     });
 };
@@ -137,8 +130,69 @@ const getDetailsOrder = (id) => {
     });
 };
 
+const cancelOrderDetails = (id, data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let order = [];
+            const promises = data?.map(async (order) => {
+                const productData = await Product.findOneAndUpdate(
+                    {
+                        _id: order.product,
+                        selled: { $gte: order.amount },
+                    },
+                    {
+                        $inc: {
+                            // Tăng lượng tồn kho
+                            countInStock: +order.amount,
+                            // Giảm lượt bán
+                            selled: -order.amount,
+                        },
+                    },
+                    {
+                        new: true,
+                    }
+                );
+                console.log("productData", productData);
+                if (productData) {
+                    order = await Order.findByIdAndDelete(id);
+                    if (order === null) {
+                        resolve({
+                            status: "OK",
+                            message: "The order is not defined",
+                        });
+                    }
+                } else {
+                    return {
+                        status: "OK",
+                        message: "ERROR",
+                        id: order.product,
+                    };
+                }
+            });
+            const results = await Promise.all(promises);
+            const newData = results && results.filter((item) => item);
+            if (newData.length) {
+                resolve({
+                    status: "ERR",
+                    message: `Product with id-${newData.join(
+                        ","
+                    )} is undefined!`,
+                });
+            }
+            resolve({
+                status: "OK",
+                message: "Success",
+                data: order,
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
 module.exports = {
     createOrder,
     getAllDetailsOrder,
     getDetailsOrder,
+    cancelOrderDetails,
 };

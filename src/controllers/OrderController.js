@@ -82,8 +82,31 @@ const getDetailsOrder = async (req, res) => {
     }
 };
 
+const cancelOrderDetails = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const data = req.body;
+
+        if (!orderId) {
+            return res.status(200).json({
+                status: "ERR",
+                message: "The orderId is required",
+            });
+        }
+
+        // Get request body into service
+        const response = await OrderService.cancelOrderDetails(orderId, data);
+        return res.status(200).json(response);
+    } catch (e) {
+        return res.status(404).json({
+            message: e,
+        });
+    }
+};
+
 module.exports = {
     createOrder,
     getAllDetailsOrder,
     getDetailsOrder,
+    cancelOrderDetails,
 };

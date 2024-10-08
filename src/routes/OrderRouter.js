@@ -23,5 +23,6 @@ router.delete(
     OrderController.cancelOrderDetails
 );
 router.get("/get-all", authMiddleWare, OrderController.getAllOrder);
+router.put("/update/:id", authMiddleWare, OrderController.updateOrder);
 
 module.exports = router;

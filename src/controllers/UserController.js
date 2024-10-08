@@ -3,7 +3,6 @@ const JwtService = require("../services/JwtService");
 
 const createUser = async (req, res) => {
     try {
-        // console.log(req.body);
         const { name, email, password, confirmPassword, phone } = req.body;
         const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
         const isCheckEmail = reg.test(email);
@@ -36,7 +35,6 @@ const createUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        // console.log(req.body);
         const { email, password } = req.body;
         const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
         const isCheckEmail = reg.test(email);
@@ -55,7 +53,6 @@ const loginUser = async (req, res) => {
         // Get request body into service
         const response = await UserService.loginUser(req.body);
         const { refresh_token, ...newResponse } = response;
-        // console.log("response: ", response);
         res.cookie("refresh_token", refresh_token, {
             // Chỉ lấy đc qua http
             HttpOnly: true,

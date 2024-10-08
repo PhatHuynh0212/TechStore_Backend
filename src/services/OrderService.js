@@ -152,7 +152,6 @@ const cancelOrderDetails = (id, data) => {
                         new: true,
                     }
                 );
-                console.log("productData", productData);
                 if (productData) {
                     order = await Order.findByIdAndDelete(id);
                     if (order === null) {
@@ -190,9 +189,26 @@ const cancelOrderDetails = (id, data) => {
     });
 };
 
+const getAllOrder = (limit, page) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allOrder = await Order.find();
+
+            resolve({
+                status: "OK",
+                message: "GET ALL USER SUCCESS",
+                data: allOrder,
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
 module.exports = {
     createOrder,
     getAllDetailsOrder,
     getDetailsOrder,
     cancelOrderDetails,
+    getAllOrder,
 };

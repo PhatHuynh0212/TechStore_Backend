@@ -22,12 +22,12 @@ routes(app);
 mongoose
     .connect(process.env.MONGO_URL)
     .then(() => {
-        console.log("Connect Database Success!");
+        // console.log("Connect Database Success!");
     })
     .catch((err) => {
-        console.log(err);
+        // console.log(err);
     });
 
 app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
+    // console.log(`Server is running on port: ${port}`);
 });

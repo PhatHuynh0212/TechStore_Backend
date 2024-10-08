@@ -139,6 +139,67 @@ const deleteManyProduct = (ids) => {
         }
     });
 };
+//     return new Promise(async (resolve, reject) => {
+//         try {
+//             let allProduct = [];
+//             const totalProduct = await Product.countDocuments();
+//             if (filter) {
+//                 const label = filter[0];
+//                 const allObjectFilter = await Product.find({
+//                     [label]: { $regex: filter[1], $options: "i" },
+//                 })
+//                     .limit(limit)
+//                     .skip(limit * page);
+
+//                 resolve({
+//                     status: "OK",
+//                     message: "GET ALL PRODUCT SUCCESS",
+//                     data: allObjectFilter,
+//                     totalProduct: totalProduct,
+//                     pageCurrent: page + 1,
+//                     totalPage: Math.ceil(totalProduct / limit),
+//                 });
+//             }
+
+//             if (sort) {
+//                 const objectSort = {};
+//                 objectSort[sort[1]] = sort[0];
+//                 const allProductSort = await Product.find()
+//                     .limit(limit)
+//                     .skip(limit * page)
+//                     .sort(objectSort);
+//                 resolve({
+//                     status: "OK",
+//                     message: "GET ALL PRODUCT SUCCESS",
+//                     data: allProductSort,
+//                     totalProduct: totalProduct,
+//                     pageCurrent: page + 1,
+//                     totalPage: Math.ceil(totalProduct / limit),
+//                 });
+//             }
+
+//             // Nếu limit null => lấy hết
+//             if (!limit) {
+//                 allProduct = await Product.find();
+//             } else {
+//                 allProduct = await Product.find()
+//                     .limit(limit)
+//                     .skip(limit * page);
+//             }
+
+//             resolve({
+//                 status: "OK",
+//                 message: "GET ALL PRODUCT SUCCESS",
+//                 data: allProduct,
+//                 totalProduct: totalProduct,
+//                 pageCurrent: page + 1,
+//                 totalPage: Math.ceil(totalProduct / limit),
+//             });
+//         } catch (e) {
+//             reject(e);
+//         }
+//     });
+// };
 
 const getAllProduct = (limit, page, sort, filter) => {
     return new Promise(async (resolve, reject) => {
@@ -147,9 +208,21 @@ const getAllProduct = (limit, page, sort, filter) => {
             const totalProduct = await Product.countDocuments();
             if (filter) {
                 const label = filter[0];
-                const allObjectFilter = await Product.find({
-                    [label]: { $regex: filter[1], $options: "i" },
-                })
+                const filterValue = filter[1];
+                let filterCondition = {};
+
+                // Kiểm tra nếu filter type
+                if (label === "type") {
+                    filterCondition["type"] = filterValue;
+                } else {
+                    // Search lowercase and regex
+                    filterCondition[label] = {
+                        $regex: filterValue,
+                        $options: "i",
+                    };
+                }
+
+                const allObjectFilter = await Product.find(filterCondition)
                     .limit(limit)
                     .skip(limit * page);
 
@@ -163,6 +236,7 @@ const getAllProduct = (limit, page, sort, filter) => {
                 });
             }
 
+            // Nếu có sort
             if (sort) {
                 const objectSort = {};
                 objectSort[sort[1]] = sort[0];
@@ -180,7 +254,7 @@ const getAllProduct = (limit, page, sort, filter) => {
                 });
             }
 
-            // Nếu limit null => lấy hết
+            // Nếu không có limit, lấy tất cả sản phẩm
             if (!limit) {
                 allProduct = await Product.find();
             } else {

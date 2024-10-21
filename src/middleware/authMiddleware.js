@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
-const authMiddleWare = (req, res, next) => {
+const authAdminMiddleWare = (req, res, next) => {
     const token = req.headers.token?.split(" ")[1];
 
     jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
@@ -44,4 +44,4 @@ const authUserMiddleWare = (req, res, next) => {
     });
 };
 
-module.exports = { authMiddleWare, authUserMiddleWare };
+module.exports = { authAdminMiddleWare, authUserMiddleWare };
